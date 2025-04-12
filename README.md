@@ -1,6 +1,6 @@
 # 🎨 Status Bar Remote Background Color Picker
 
-![Demo](assets/demo.gif)
+![Demo](https://github.com/npi3pak/vscode-statusbar-color-plugin/blob/main/assets/demo.gif)
 
 A simple and lightweight VS Code extension that allows you to quickly change the `statusBarItem.remoteBackground` color via a color palette or manual hex input.
 

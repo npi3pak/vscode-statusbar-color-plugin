@@ -1,0 +1,30 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Build
+dist/
+out/
+.vscode-test/
+*.vsix
+
+# VS Code settings
+.vscode/
+
+# TypeScript
+*.tsbuildinfo
+*.map
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+
+# Env / secrets
+.env
+
+# Coverage
+coverage/
+

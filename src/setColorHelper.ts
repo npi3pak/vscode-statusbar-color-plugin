@@ -2,11 +2,9 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 
+const DEFAULT_SQUARE = "■";
+
 const COLORS = [
-    {
-        label: "↩️ Reset to default",
-        description: "default",
-    },
     { label: "🔴 Red", description: "#f28b82" },
     { label: "🟢 Green", description: "#b7e1cd" },
     { label: "🔵 Blue", description: "#aecbfa" },
@@ -17,6 +15,24 @@ const COLORS = [
 ];
 
 const HEX_OR_NAME_REGEXP = /^#([0-9a-fA-F]{6})$|^[a-zA-Z]+$/;
+
+interface ProjectSettings {
+    projectName?: string;
+    labelColor?: string;
+    squareColor?: string;
+}
+
+const getSettingsPath = (): string | null => {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+        return null;
+    }
+    return path.join(
+        workspaceFolders[0].uri.fsPath,
+        ".vscode",
+        "settings.json"
+    );
+};
 
 const readWorkspaceSettings = (
     settingsPath: string
@@ -36,18 +52,67 @@ const readWorkspaceSettings = (
             return {};
         }
     }
+    return {};
 };
 
-export const onChangeColorFromCommand = async () => {
-    const selected = await vscode.window.showQuickPick(COLORS, {
-        placeHolder: "Pick a color for statusBarItem.remoteBackground",
-    });
+const writeWorkspaceSettings = (
+    settingsPath: string,
+    settings: Record<string, any>
+): void => {
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 4));
+};
 
-    if (!selected) {
+export const getProjectSettings = (): ProjectSettings => {
+    const settingsPath = getSettingsPath();
+    if (!settingsPath) {
+        return {};
+    }
+
+    const settings = readWorkspaceSettings(settingsPath);
+    return settings?.statusBarProject || {};
+};
+
+const saveProjectSettings = (projectSettings: ProjectSettings): void => {
+    const settingsPath = getSettingsPath();
+    if (!settingsPath) {
+        vscode.window.showErrorMessage("No workspace folder open.");
         return;
     }
 
-    let color = selected.description || null;
+    const settings = readWorkspaceSettings(settingsPath) || {};
+    settings.statusBarProject = projectSettings;
+    writeWorkspaceSettings(settingsPath, settings);
+};
+
+export const updateStatusBarItem = (
+    statusBarItem: vscode.StatusBarItem,
+    settings: ProjectSettings
+): void => {
+    const projectName = settings.projectName || "";
+    const labelColor = settings.labelColor || "#ffffff";
+
+    if (projectName) {
+        statusBarItem.text = `$(circle-filled) ${projectName}`;
+        statusBarItem.color = labelColor;
+        statusBarItem.backgroundColor = undefined;
+    } else {
+        statusBarItem.text = DEFAULT_SQUARE;
+        statusBarItem.color = labelColor;
+        statusBarItem.backgroundColor = undefined;
+    }
+
+    statusBarItem.tooltip = "Click to configure";
+    statusBarItem.command = "extension.configureStatusBar";
+};
+
+const pickColorFromPalette = async (title: string): Promise<string | null> => {
+    const selected = await vscode.window.showQuickPick(COLORS, {
+        placeHolder: title,
+    });
+
+    if (!selected) {
+        return null;
+    }
 
     if (selected.label.includes("Custom")) {
         const input = await vscode.window.showInputBox({
@@ -58,44 +123,70 @@ export const onChangeColorFromCommand = async () => {
                     ? null
                     : "Enter a valid hex color or CSS color name",
         });
-        if (!input) {
-            return;
-        }
-        color = input;
+        return input || null;
     }
 
-    if (!color) {
-        return;
-    }
-
-    if (selected.label.includes("default")) {
-        color = null;
-    }
-
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders) {
-        vscode.window.showErrorMessage("No workspace folder open.");
-        return;
-    }
-
-    const settingsPath = path.join(
-        workspaceFolders[0].uri.fsPath,
-        ".vscode",
-        "settings.json"
-    );
-
-    const settings = readWorkspaceSettings(settingsPath) || {};
-
-    const updatedSettings = {
-        ...settings,
-        "workbench.colorCustomizations": {
-            ...(settings["workbench.colorCustomizations"] || {}),
-            "statusBarItem.remoteBackground": color,
-        },
-    };
-
-    fs.writeFileSync(settingsPath, JSON.stringify(updatedSettings, null, 2));
-    vscode.window.showInformationMessage(
-        `Updated statusBarItem.remoteBackground to ${color ?? 'default'}`
-    );
+    return selected.description || null;
 };
+
+export const showConfigurationMenu =
+    async (): Promise<ProjectSettings | null> => {
+        const currentSettings = getProjectSettings();
+
+        const option = await vscode.window.showQuickPick(
+            [
+                {
+                    label: "📝 Set Project Name",
+                    description: `Current: ${
+                        currentSettings.projectName || "Not set"
+                    }`,
+                    value: "name",
+                },
+                {
+                    label: "🎨 Set Label Color",
+                    description: `Current: ${
+                        currentSettings.labelColor || "Not set"
+                    }`,
+                    value: "labelColor",
+                },
+            ],
+            { placeHolder: "Choose what to configure" }
+        );
+
+        if (!option) {
+            return null;
+        }
+
+        const updatedSettings = { ...currentSettings };
+
+        if (option.value === "name") {
+            const name = await vscode.window.showInputBox({
+                prompt: "Enter project name (leave empty to show square)",
+                placeHolder: "My Project",
+                value: currentSettings.projectName || "",
+            });
+
+            if (name === undefined) {
+                return null;
+            }
+
+            updatedSettings.projectName = name;
+        }
+
+        if (option.value === "labelColor") {
+            const color = await pickColorFromPalette(
+                "Pick color for project name label"
+            );
+            if (!color) {
+                return null;
+            }
+            updatedSettings.labelColor = color;
+        }
+
+        saveProjectSettings(updatedSettings);
+        vscode.window.showInformationMessage(
+            "Status bar configuration updated!"
+        );
+
+        return updatedSettings;
+    };

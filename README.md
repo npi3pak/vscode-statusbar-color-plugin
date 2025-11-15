@@ -1,19 +1,66 @@
-# 🎨 Status Bar Remote Background Color Picker
+# 🏷️ Status Bar Project Label
 
-![Demo](https://raw.githubusercontent.com/npi3pak/vscode-statusbar-color-plugin/refs/heads/main/assets/demo.gif)
-
-A simple and lightweight VS Code extension that allows you to quickly change the `statusBarItem.remoteBackground` color via a color palette or manual hex input.
-
+A lightweight VS Code extension that adds a customizable project name label to the status bar. Perfect for quickly identifying which project you're working on.
 
 ## ✨ Features
 
--   🖍️ Pick a pastel-themed color for your remote status bar background.
--   🎨 Enter a custom hex color (`#RRGGBB`) or named CSS color.
--   💾 Automatically saves your selection to `.vscode/settings.json`.
+- 📝 Display custom project name in the status bar
+- 🔲 Show a colored square when no project name is set
+- 🎨 Customize label text color
+- 🌈 Customize square color
+- 💾 Settings saved per workspace in `.vscode/settings.json`
+- 🖱️ Click on the label to configure settings
 
 ## 🚀 How to Use
 
-1. Open the command palette (`Ctrl+Shift+P` or `Cmd+Shift+P`).
-2. Search for and select:
-3. Choose a color from the preset palette, or select "Custom color" to enter a hex code manually.
-4. The selected color is saved to your project’s `.vscode/settings.json`:
+1. Open the command palette (`Ctrl+Shift+P` or `Cmd+Shift+P`)
+2. Search for and select: **Configure Status Bar Project Label**
+3. Choose what to configure:
+   - **Set Project Name** - Enter a custom name for your project
+   - **Set Label Color** - Choose text color for the project name
+   - **Set Square Color** - Choose color for the square (shown when no name is set)
+
+## 📋 Settings
+
+The extension stores settings in your workspace's `.vscode/settings.json`:
+
+```json
+{
+    "statusBarProject": {
+        "projectName": "My Project",
+        "labelColor": "#f28b82",
+        "squareColor": "#ffffff"
+    }
+}
+```
+
+## 🎨 Available Preset Colors
+
+- Red (#f28b82)
+- Green (#b7e1cd)
+- Blue (#aecbfa)
+- Purple (#d7aefb)
+- Black (#404040)
+- White (#ffffff)
+- Custom color (enter hex manually)
+
+## 💡 Use Cases
+
+- Quickly identify which project you're working on when multiple VS Code windows are open
+- Color-code different types of projects
+- Add visual distinction to your workspace
+
+## 📦 Installation
+
+1. Download the `.vsix` file
+2. Install via VS Code: Extensions > ... > Install from VSIX
+3. Or use command line: `code --install-extension statusbar-color-plugin-*.vsix`
+
+## 🔧 Development
+
+```bash
+npm install
+npm run compile
+```
+
+Press `F5` to open Extension Development Host for testing.

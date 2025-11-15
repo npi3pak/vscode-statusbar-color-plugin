@@ -1,9 +1,9 @@
 {
     "icon": "icon.png",
     "name": "statusbar-color-plugin",
-    "displayName": "statusbar-color-plugin",
-    "description": "",
-    "version": "0.0.3",
+    "displayName": "Status Bar Project Label",
+    "description": "Add customizable project name label to VS Code status bar",
+    "version": "0.1.0",
     "publisher": "IvanVoid",
     "engines": {
         "vscode": "^1.99.0"
@@ -19,13 +19,15 @@
     "categories": [
         "Other"
     ],
-    "activationEvents": [],
     "main": "./out/extension.js",
+    "activationEvents": [
+        "onStartupFinished"
+    ],
     "contributes": {
         "commands": [
             {
-                "command": "extension.pickStatusBarColor",
-                "title": "Pick Status Bar Remote Background Color"
+                "command": "extension.configureStatusBar",
+                "title": "Configure Status Bar Project Label"
             }
         ]
     },

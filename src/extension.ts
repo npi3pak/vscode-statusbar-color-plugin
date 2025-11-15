@@ -10,7 +10,7 @@ let statusBarItem: vscode.StatusBarItem;
 export function activate(context: vscode.ExtensionContext) {
     statusBarItem = vscode.window.createStatusBarItem(
         vscode.StatusBarAlignment.Left,
-        1000
+        10000
     );
 
     const settings = getProjectSettings();

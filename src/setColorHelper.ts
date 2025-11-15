@@ -90,7 +90,6 @@ export const updateStatusBarItem = (
 ): void => {
     const projectName = settings.projectName || "";
     const labelColor = settings.labelColor || "#ffffff";
-    const squareColor = settings.squareColor || "#ffffff";
 
     if (projectName) {
         statusBarItem.text = `$(circle-filled) ${projectName}`;
@@ -98,7 +97,7 @@ export const updateStatusBarItem = (
         statusBarItem.backgroundColor = undefined;
     } else {
         statusBarItem.text = DEFAULT_SQUARE;
-        statusBarItem.color = squareColor;
+        statusBarItem.color = labelColor;
         statusBarItem.backgroundColor = undefined;
     }
 
@@ -106,9 +105,7 @@ export const updateStatusBarItem = (
     statusBarItem.command = "extension.configureStatusBar";
 };
 
-const pickColorFromPalette = async (
-    title: string
-): Promise<string | null> => {
+const pickColorFromPalette = async (title: string): Promise<string | null> => {
     const selected = await vscode.window.showQuickPick(COLORS, {
         placeHolder: title,
     });
@@ -132,72 +129,64 @@ const pickColorFromPalette = async (
     return selected.description || null;
 };
 
-export const showConfigurationMenu = async (): Promise<
-    ProjectSettings | null
-> => {
-    const currentSettings = getProjectSettings();
+export const showConfigurationMenu =
+    async (): Promise<ProjectSettings | null> => {
+        const currentSettings = getProjectSettings();
 
-    const option = await vscode.window.showQuickPick(
-        [
-            {
-                label: "📝 Set Project Name",
-                description: `Current: ${currentSettings.projectName || "Not set"}`,
-                value: "name",
-            },
-            {
-                label: "🎨 Set Label Color",
-                description: `Current: ${currentSettings.labelColor || "Not set"}`,
-                value: "labelColor",
-            },
-            {
-                label: "🔲 Set Square Color",
-                description: `Current: ${currentSettings.squareColor || "Not set"}`,
-                value: "squareColor",
-            },
-        ],
-        { placeHolder: "Choose what to configure" }
-    );
-
-    if (!option) {
-        return null;
-    }
-
-    const updatedSettings = { ...currentSettings };
-
-    if (option.value === "name") {
-        const name = await vscode.window.showInputBox({
-            prompt: "Enter project name (leave empty to show square)",
-            placeHolder: "My Project",
-            value: currentSettings.projectName || "",
-        });
-
-        if (name === undefined) {
-            return null;
-        }
-
-        updatedSettings.projectName = name;
-    }
-
-    if (option.value === "labelColor") {
-        const color = await pickColorFromPalette(
-            "Pick color for project name label"
+        const option = await vscode.window.showQuickPick(
+            [
+                {
+                    label: "📝 Set Project Name",
+                    description: `Current: ${
+                        currentSettings.projectName || "Not set"
+                    }`,
+                    value: "name",
+                },
+                {
+                    label: "🎨 Set Label Color",
+                    description: `Current: ${
+                        currentSettings.labelColor || "Not set"
+                    }`,
+                    value: "labelColor",
+                },
+            ],
+            { placeHolder: "Choose what to configure" }
         );
-        if (!color) {
+
+        if (!option) {
             return null;
         }
-        updatedSettings.labelColor = color;
-    }
 
-    if (option.value === "squareColor") {
-        const color = await pickColorFromPalette("Pick color for square");
-        if (!color) {
-            return null;
+        const updatedSettings = { ...currentSettings };
+
+        if (option.value === "name") {
+            const name = await vscode.window.showInputBox({
+                prompt: "Enter project name (leave empty to show square)",
+                placeHolder: "My Project",
+                value: currentSettings.projectName || "",
+            });
+
+            if (name === undefined) {
+                return null;
+            }
+
+            updatedSettings.projectName = name;
         }
-        updatedSettings.squareColor = color;
-    }
 
-    saveProjectSettings(updatedSettings);
-    vscode.window.showInformationMessage("Status bar configuration updated!");
+        if (option.value === "labelColor") {
+            const color = await pickColorFromPalette(
+                "Pick color for project name label"
+            );
+            if (!color) {
+                return null;
+            }
+            updatedSettings.labelColor = color;
+        }
 
-    return updatedSettings;
-};
+        saveProjectSettings(updatedSettings);
+        vscode.window.showInformationMessage(
+            "Status bar configuration updated!"
+        );
+
+        return updatedSettings;
+    };

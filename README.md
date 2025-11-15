@@ -6,9 +6,10 @@ A lightweight VS Code extension that adds a customizable project name label to t
 
 - 📝 Display custom project name in the status bar
 - 🔲 Show a colored square when no project name is set
-- 🎨 Customize label background color
+- 🎨 Customize label text color
 - 🌈 Customize square color
 - 💾 Settings saved per workspace in `.vscode/settings.json`
+- 🖱️ Click on the label to configure settings
 
 ## 🚀 How to Use
 
@@ -16,7 +17,7 @@ A lightweight VS Code extension that adds a customizable project name label to t
 2. Search for and select: **Configure Status Bar Project Label**
 3. Choose what to configure:
    - **Set Project Name** - Enter a custom name for your project
-   - **Set Label Background Color** - Choose background color for the project name
+   - **Set Label Color** - Choose text color for the project name
    - **Set Square Color** - Choose color for the square (shown when no name is set)
 
 ## 📋 Settings
@@ -27,7 +28,7 @@ The extension stores settings in your workspace's `.vscode/settings.json`:
 {
     "statusBarProject": {
         "projectName": "My Project",
-        "labelBackgroundColor": "#f28b82",
+        "labelColor": "#f28b82",
         "squareColor": "#ffffff"
     }
 }

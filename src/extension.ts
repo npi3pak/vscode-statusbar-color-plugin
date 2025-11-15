@@ -19,6 +19,15 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(statusBarItem);
 
+    const configWatcher = vscode.workspace.onDidChangeConfiguration((event) => {
+        if (event.affectsConfiguration("statusBarProject")) {
+            const updatedSettings = getProjectSettings();
+            updateStatusBarItem(statusBarItem, updatedSettings);
+        }
+    });
+
+    context.subscriptions.push(configWatcher);
+
     const configureCommand = vscode.commands.registerCommand(
         "extension.configureStatusBar",
         async () => {

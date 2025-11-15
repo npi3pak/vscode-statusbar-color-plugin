@@ -18,7 +18,7 @@ const HEX_OR_NAME_REGEXP = /^#([0-9a-fA-F]{6})$|^[a-zA-Z]+$/;
 
 interface ProjectSettings {
     projectName?: string;
-    labelBackgroundColor?: string;
+    labelColor?: string;
     squareColor?: string;
 }
 
@@ -89,22 +89,21 @@ export const updateStatusBarItem = (
     settings: ProjectSettings
 ): void => {
     const projectName = settings.projectName || "";
-    const labelBgColor = settings.labelBackgroundColor || "#404040";
+    const labelColor = settings.labelColor || "#ffffff";
     const squareColor = settings.squareColor || "#ffffff";
 
     if (projectName) {
-        statusBarItem.text = projectName;
-        statusBarItem.backgroundColor = new vscode.ThemeColor(
-            "statusBarItem.errorBackground"
-        );
+        statusBarItem.text = `$(circle-filled) ${projectName}`;
+        statusBarItem.color = labelColor;
+        statusBarItem.backgroundColor = undefined;
     } else {
         statusBarItem.text = DEFAULT_SQUARE;
-        statusBarItem.backgroundColor = new vscode.ThemeColor(
-            "statusBarItem.errorBackground"
-        );
+        statusBarItem.color = squareColor;
+        statusBarItem.backgroundColor = undefined;
     }
 
-    statusBarItem.color = projectName ? labelBgColor : squareColor;
+    statusBarItem.tooltip = "Click to configure";
+    statusBarItem.command = "extension.configureStatusBar";
 };
 
 const pickColorFromPalette = async (
@@ -146,8 +145,8 @@ export const showConfigurationMenu = async (): Promise<
                 value: "name",
             },
             {
-                label: "🎨 Set Label Background Color",
-                description: `Current: ${currentSettings.labelBackgroundColor || "Not set"}`,
+                label: "🎨 Set Label Color",
+                description: `Current: ${currentSettings.labelColor || "Not set"}`,
                 value: "labelColor",
             },
             {
@@ -181,12 +180,12 @@ export const showConfigurationMenu = async (): Promise<
 
     if (option.value === "labelColor") {
         const color = await pickColorFromPalette(
-            "Pick background color for project name label"
+            "Pick color for project name label"
         );
         if (!color) {
             return null;
         }
-        updatedSettings.labelBackgroundColor = color;
+        updatedSettings.labelColor = color;
     }
 
     if (option.value === "squareColor") {
